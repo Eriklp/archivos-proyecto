@@ -1,10 +1,13 @@
 from interfaz_ui import *
-import lectorArchivos
+from lecturaArchivos import lectorArchivos
 
 
 def openFile(fileName):
     if '.fasta' in fileName or '.fa' in fileName or '.fna' in fileName:
-        
+
+        lectura = lectorArchivos.lectorArchivos(fileName)
+        lectura.getName()
+        lectura.leerArchivoSecuencia()
         #f = open(fileName)
         #s1 = f.read()
         #data = "".join(s1.split("\n")[1:]).upper()
