@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QThread
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -134,7 +135,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "Seleccionar Secuencias"))
-        self.pushButton_5.setText(_translate("MainWindow", "Borrar Secuencia"))
+        self.pushButton_5.setText(_translate("MainWindow", "Borrar Secuencias"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "inicio"))
         self.label_2.setText(_translate("MainWindow", "Tipo de MFDFA"))
         self.comboBox_2.setItemText(0, _translate("MainWindow", "-1 a 1"))
