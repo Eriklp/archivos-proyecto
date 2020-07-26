@@ -1,3 +1,6 @@
 #se ignora la carpeta del ambiente virtual 
 /envT
 *pyc
+/data
+*.fa
+*.fasta
