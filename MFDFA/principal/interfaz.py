@@ -4,9 +4,11 @@ sys.path.append("..")
 from interfaz_ui import *
 from lecturaArchivos import lectorArchivos
 from entidades.segmento import segmento
+from entidades.solucion import Solucion
 #from mfdfa.mfdfa import mfdfa
 
 lecturas = []
+soluciones = []
 def openFile(fileName):
     if '.fasta' in fileName or '.fa' in fileName or '.fna' in fileName:
 
@@ -81,11 +83,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             rangoQ = [-20, 20]
 
         tamañoSegmentos = self.spinBox.value()
+        solucionLectura = None
         for lectura in lecturas:
              #dfa = mfdfa(lectura.getSecuenciaNumeros(), rangoQ, tipo)
              #dfa.run()
              lectura.dividirEnArchivos(tamañoSegmentos)
-             lectura.calcularSolucionLectura(tipo, rangoQ)
+             solucionLectura = lectura.calcularSolucionLectura(tipo, rangoQ)
+             solucionLectura.guardarSolucionArchivo()
+             soluciones.append(solucionLectura)
         #print(rangoQ, tipo, numeroSegmentos)
 
     def borrarSecuencias(self):
