@@ -220,7 +220,7 @@ def MFDFA(timeseries: np.ndarray, lag: np.ndarray=None, order: int=1,
     #plt.loglog(q, f, 'o', label='fOU: MFDFA q=2')
     #plt.show()
 
-    print(lag, f)
+    # print(lag, f)
     return lag, f
 
 # class mfdfa(QThread):

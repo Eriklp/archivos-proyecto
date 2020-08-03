@@ -13,7 +13,7 @@ def openFile(fileName):
     if '.fasta' in fileName or '.fa' in fileName or '.fna' in fileName:
 
         lectura = lectorArchivos.lectorArchivos(fileName)
-        lectura.getName()
+        # lectura.getName()
         lectura.leerArchivoSecuencia()
         lecturas.append(lectura)
 
@@ -83,18 +83,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             rangoQ = [-20, 20]
 
         tamañoSegmentos = self.spinBox.value()
-        solucionLectura = None
+        # solucionLectura = None
         for lectura in lecturas:
-             #dfa = mfdfa(lectura.getSecuenciaNumeros(), rangoQ, tipo)
-             #dfa.run()
-             lectura.dividirEnArchivos(tamañoSegmentos)
-             solucionLectura = lectura.calcularSolucionLectura(tipo, rangoQ)
-             solucionLectura.guardarSolucionArchivo()
-             soluciones.append(solucionLectura)
+            #dfa = mfdfa(lectura.getSecuenciaNumeros(), rangoQ, tipo)
+            #dfa.run()
+            lectura.dividirEnArchivos(tamañoSegmentos)
+            solucionLectura = lectura.calcularSolucionLectura(tipo, rangoQ)
+            solucionLectura.guardarSolucionArchivo()
+            solucionLectura.guardarSolucionCsv()
+            soluciones.append(solucionLectura)
+            # lecturas.remove(lectura)
         #print(rangoQ, tipo, numeroSegmentos)
 
     def borrarSecuencias(self):
-        self.lecturas = []
+        lecturas = []
         gc.collect()
         print("borrar")
 

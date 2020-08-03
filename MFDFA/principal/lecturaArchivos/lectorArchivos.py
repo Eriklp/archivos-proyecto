@@ -18,7 +18,7 @@ def divisionArreglo(arr, tamaño):
     arrs.append(arr)
     return arrs
 
-class lectorArchivos:
+class lectorArchivos(object):
     nombre = ""
     archivo = ""
     #secuencia = ""
@@ -33,7 +33,7 @@ class lectorArchivos:
             f = open(self.archivo)
             s1 = f.read()
             #print(s1.split("\n")[:1])
-            self.nombre = str(s1.split("\n")[:1][0])+' '
+            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "")
             data = "".join(s1.split("\n")[1:]).upper()
             #print(len(data))
             listaNumero = []
@@ -63,66 +63,104 @@ class lectorArchivos:
             print(str(error))
 
     def dividirEnArchivos(self, tamañoSegmentos):
+        self.segmentos = []
         if tamañoSegmentos == 0:
             pass
         else:
+            print("tamaño: ", tamañoSegmentos)
             subprocess.call(['split', '--bytes', str(tamañoSegmentos)+"M", '--numeric-suffixes', self.archivo, '../files/'+self.nombre])
             with scandir("../files/") as archivos:
                 for archivo in archivos:
                     if self.nombre in archivo.name:
-                        rename("../files/"+archivo.name, ("../files/"+archivo.name+".fa").replace(" ", "_"))
+                        rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_")).replace(">", "_").replace("|", "").replace("(", "").replace(")", ""))
                         #print(archivo.name)
 
         ##Se crean los objeto segmento los cuales contendran secuencias del tamaño indicado para cada lectura
             arregloTemporal = divisionArreglo(self.secuenciaNumeros, (tamañoSegmentos*1000000))
-            del self.secuenciaNumeros
+            self.secuenciaNumeros = []
             for arreglo in arregloTemporal:
+                print(len(arreglo))
                 segmentoT = segmento(self.nombre, arreglo)
                 self.segmentos.append(segmentoT)
-                del segmentoT
 
-
-        #print(self.segmentos[0].__dict__['contenidoSegmento'])
+        
+        print("tamaño segmentos dividir: ",len(self.segmentos))
 
     def calcularSolucionLectura(self, tipo, q):
         #lag = np.linspace(1000, 64000, num = 10).astype(int)
         nombre = self.nombre
-        lag = np.array([1000, 5000, 10000, 20000, 30000, 50000, 80000, 100000, 120000, 150000, 200000])
+        lag = np.array([1000, 5000, 10000, 20000, 30000, 50000, 80000, 100000, 120000, 150000, 200000, 220000, 250000])
         q = np.linspace(q[0], q[1], num = 10)
+        deltaQ = q[1] - q[0]
         listaHqSegmentos = []
+        listatqSegmentos = []
+        listahqSegmentos = []
         listaFLuctsSegmentos =[]
         listaDqSegmentos =[]
-        listaAlusSegmentos =[]
+        listadqSegmentos = []
+        listadqmSegmentos = []
         #Se realiza el mfdfa en cada segmento
         solucion = None
         for segmento in self.segmentos:
-            hq = []
+            Hq = []
             fluct = []
+            tq = []
+            listaAlusSegmentos =[]
             for e in q:
+                print("longitud de segmentos:", len(self.segmentos))
                 l, f = MFDFA(np.array(segmento.__dict__["contenidoSegmento"]),
                 lag,
                 tipo,
                 e)
-                coeff = np.polyfit(np.log(l), np.log(f), tipo)[0]
-                print(coeff)
-                hq.append(coeff)
+                Hqv = np.polyfit(np.log(l), np.log(f), tipo)[0]
+                print(Hqv)
+                Hq.append(Hqv[0])
+                tq.append((Hqv[0]*e) - 1)
                 fluct.append(f)
-            listaHqSegmentos.append(hq)
-            listaDqSegmentos.append(max(hq) - min(hq))
+            print("listHq:")
+            print(len(Hq))
+            print("listatq: ")
+            print(len(tq))
+            # hq = np.array([1.0])
+            # hq.append(1)
+            hq = (np.diff(tq)/deltaQ)
+            # hq = np.concatenate((hq, diff))
+            hq = np.append(hq, 0.0)
+            print(hq.tolist())
+            print("listahq: ")
+            print(len(hq.tolist()))
+            listaHqSegmentos.append(Hq)
+            listatqSegmentos.append(tq)
+            listahqSegmentos.append(hq.tolist())
+            # for i in q:
+
+            Dq = Hq[-1] - Hq[0]
+            dq = hq[-1] - hq[0]
+            listaDqSegmentos.append(Dq)
+            listadqSegmentos.append(dq)
+            dqm = (q*hq) - np.array(tq)
+            listadqmSegmentos.append(dqm.tolist())
+            print("listaDqs: ", listaDqSegmentos)
             listaFLuctsSegmentos.append(fluct)
             #se realiza el conteo de alus para cada segmento pasando el nombre de su secuencia
-            with scandir("../files") as archivos:
-                for archivo in archivos:
-                    if self.nombre in archivo.name and archivo.name.endswith('.fa'):
-                        rutaArchivoSegmento = path.abspath(archivo.name)
-                        contarAlus(rutaArchivoSegmento)
+            # self.segmentos.remove(segmento)
+        with scandir("../files/") as archivos:
+            print("entro a scandir")
+            for archivo in archivos:
+                if segmento.__dict__["nombreSecuencia"] in archivo.name and archivo.name.endswith('.fa'):
+                    print("conteo alus: {}-{}".format(archivo.name, self.nombre))
+                    rutaArchivoSegmento = path.abspath(archivo.name)
+                    print(rutaArchivoSegmento)
+                    contarAlus(rutaArchivoSegmento)
+                
                 #for para obtener la cantidad de alus luego de contarlas para cada segmento
-                for i in range(len(self.segmentos)):
-                    if self.nombre in archivo.name and archivo.name.endswith(i+'.fa.tbl'):
-                        rutaArchivoTblSegmento = path.abspath(archivo.name)
-                        listaAlusSegmentos.append(obtenerCantidadAlus(rutaArchivoTblSegmento))
-
-        solucion = Solucion(nombre, lag, q, listaHqSegmentos, listaFLuctsSegmentos, listaDqSegmentos, listaAlusSegmentos)
+                # for i in range(len(self.segmentos)):
+                #     if self.nombre in archivo.name and archivo.name.endswith(str(i)+'.fa.tbl'):
+                #         print("entro a scandir tbl")
+                #         rutaArchivoTblSegmento = path.abspath(archivo.name)
+                #         listaAlusSegmentos.append(obtenerCantidadAlus(rutaArchivoTblSegmento))
+        
+        solucion = Solucion(nombre, lag, q, listaHqSegmentos, listatqSegmentos, listahqSegmentos, listaFLuctsSegmentos, listaDqSegmentos, listadqSegmentos, listadqmSegmentos, listaAlusSegmentos)
 
         return solucion
 
