@@ -33,7 +33,7 @@ class lectorArchivos(object):
             f = open(self.archivo)
             s1 = f.read()
             #print(s1.split("\n")[:1])
-            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "")
+            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "").replace(";", "")
             data = "".join(s1.split("\n")[1:]).upper()
             #print(len(data))
             listaNumero = []
@@ -58,7 +58,25 @@ class lectorArchivos(object):
             print(listaNumero[0:7])
             #self.secuencia = data
             self.secuenciaNumeros = listaNumero
+            if 'N' in data:
+                self.archivo = self.archivo.replace(".fa", " sinNs.fa")
+                f2 = open(self.archivo, 'w')
+                print("remplazo de N")
+                data = data.replace('N', '')
+                info = ">"+self.nombre+'\n'
+                contador = 0
+                for char in data:
+                    if contador <70:
+                        info+=char 
+                        contador +=1
+                    else:
+                        info+='\n'
+                        info+=char
+                        contador = 1
 
+                f2.write(info)
+                f2.close()
+            f.close()
         except Exception as error:
             print(str(error))
 
@@ -71,7 +89,7 @@ class lectorArchivos(object):
             subprocess.call(['split', '--bytes', str(tamañoSegmentos)+"M", '--numeric-suffixes', self.archivo, '../files/'+self.nombre])
             with scandir("../files/") as archivos:
                 for archivo in archivos:
-                    if self.nombre in archivo.name:
+                    if self.nombre in archivo.name and archivo.is_file():
                         rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_")).replace(">", "_").replace("|", "").replace("(", "").replace(")", ""))
                         #print(archivo.name)
 
@@ -118,24 +136,24 @@ class lectorArchivos(object):
                 tq.append((Hqv[0]*e) - 1)
                 fluct.append(f)
             print("listHq:")
-            print(len(Hq))
+            print(Hq)
             print("listatq: ")
-            print(len(tq))
-            # hq = np.array([1.0])
-            # hq.append(1)
+            print(tq)
             hq = (np.diff(tq)/deltaQ)
             # hq = np.concatenate((hq, diff))
-            hq = np.append(hq, 0.0)
-            print(hq.tolist())
+            # TODO: implementar una aproximacion para el ultimo valor de hq ya que
+            # se pierde durante la derivacion de tq
+            hq = np.append(hq, 0.5)
             print("listahq: ")
-            print(len(hq.tolist()))
+            print(hq.tolist())
             listaHqSegmentos.append(Hq)
             listatqSegmentos.append(tq)
             listahqSegmentos.append(hq.tolist())
             # for i in q:
 
-            Dq = Hq[-1] - Hq[0]
-            dq = hq[-1] - hq[0]
+            Dq = Hq[0] - Hq[-1]
+            dq = hq[0] - hq[-2]
+            # print("Hq-1:{}-Hq0:{}".format(Hq[-1], Hq[0]))
             listaDqSegmentos.append(Dq)
             listadqSegmentos.append(dq)
             dqm = (q*hq) - np.array(tq)
