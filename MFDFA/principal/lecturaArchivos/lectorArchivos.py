@@ -63,7 +63,7 @@ class lectorArchivos(object):
                 f2 = open(self.archivo, 'w')
                 print("remplazo de N")
                 data = data.replace('N', '')
-                info = ">"+self.nombre+'\n'
+                info = self.nombre+'\n'
                 contador = 0
                 for char in data:
                     if contador <70:
