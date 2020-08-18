@@ -5,10 +5,12 @@ from interfaz_ui import *
 from lecturaArchivos import lectorArchivos
 from entidades.segmento import segmento
 from entidades.solucion import Solucion
+from entidades.grafica import grafica
 #from mfdfa.mfdfa import mfdfa
 
 lecturas = []
 soluciones = []
+nombresSoluciones = []
 def openFile(fileName):
     if '.fasta' in fileName or '.fa' in fileName or '.fna' in fileName:
 
@@ -39,6 +41,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         QtWidgets.QMainWindow.__init__(self, *args, **kwargs)
         self.setupUi(self)
+        self.setWindowTitle("software para MFDFA by Erik")
         self.pushButton.clicked.connect(self.abrirArchivo)
         self.plainTextEdit.setReadOnly(True)
         self.pushButton_4.clicked.connect(self.realizarAnalizisMF)
@@ -46,6 +49,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lineEdit.setText("1")
         self.horizontalSlider.valueChanged.connect(self.actualizarLineEdit)
         self.pushButton_5.clicked.connect(self.borrarSecuencias)
+        self.pushButton_3.clicked.connect(self.graficarSoluciones)
+        self.ventanas = list()
+        self.comboBox_4.currentTextChanged.connect(self.mostrarTablaSolucion)
 
     def abrirArchivo(self):
         options = QtWidgets.QFileDialog.Options()
@@ -61,6 +67,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             textoMostrar+= nombre.getName() + "\n"
 
         self.plainTextEdit.insertPlainText(textoMostrar)
+
+    def actualizarTextEditMF(self, texto):
+        self.plainTextEdit_2.appendPlainText(texto+"\n")
 
     def actualizarLineEdit(self):
         size = str(self.horizontalSlider.value())
@@ -84,16 +93,87 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         tamañoSegmentos = self.spinBox.value()
         # solucionLectura = None
+        self.plainTextEdit_2.insertPlainText("Realizando Analizis sobre la secuencias con los siguientes parametros: \n"+
+        "tipo: "+str(tipo)+"Rango de exponente Q: "+str(rangoQ)+" Tamaño de segmentos: "+str(tamañoSegmentos)+"\n")
         for lectura in lecturas:
-            #dfa = mfdfa(lectura.getSecuenciaNumeros(), rangoQ, tipo)
-            #dfa.run()
             lectura.dividirEnArchivos(tamañoSegmentos)
             solucionLectura = lectura.calcularSolucionLectura(tipo, rangoQ)
             solucionLectura.guardarSolucionArchivo()
             solucionLectura.guardarSolucionCsv()
+            self.actualizarTextEditMF("solucion calculada para: "+solucionLectura.__dict__["nombreSecuencia"])
             soluciones.append(solucionLectura)
-            # lecturas.remove(lectura)
-        #print(rangoQ, tipo, numeroSegmentos)
+            nombresSoluciones.append(solucionLectura.__dict__["nombreSecuencia"])
+
+        self.actualizarTextEditMF("Analilis Multifractal finalizado")
+        self.comboBox_4.addItems(nombresSoluciones)
+
+    def graficarSoluciones(self):
+        solucionMostrar = self.comboBox_4.currentText()
+        ejeX = self.comboBox.currentText()
+        ejeY = self.comboBox_3.currentText()
+        # print("entro a graficar", ejeX, ejeY, solucionMostrar)
+        if ejeX == ejeY:
+            showdialog('Error', 'No puede ser el mismo eje', 'no puede ser el mismo eje')
+        else:
+            for solucion in soluciones:
+                if solucionMostrar == solucion.__dict__["nombreSecuencia"]:
+                    if ejeX == "q":
+                        if ejeY == "hq":
+                            conteo = 1
+                            for lista in solucion.__dict__["listahqs"]:
+                                gra = grafica(solucionMostrar+" parte: "+str(conteo), ejeX, ejeY, solucion.__dict__["listaQ"], lista)
+                                self.ventanas.append(gra)
+                                gra.show()
+                                conteo+=1
+                        if ejeY == "Hq":
+                            conteo = 1
+                            for lista in solucion.__dict__["listaHqs"]:
+                                gra = grafica(solucionMostrar+" parte "+str(conteo), ejeX, ejeY, solucion.__dict__["listaQ"], lista)
+                                self.ventanas.append(gra)
+                                gra.show()
+                                conteo+=1
+                        if ejeY == "Hq":
+                            conteo = 1
+                            for lista in solucion.__dict__["listaHqs"]:
+                                gra = grafica(solucionMostrar+" parte "+str(conteo), ejeX, ejeY, solucion.__dict__["listaQ"], lista)
+                                self.ventanas.append(gra)
+                                gra.show()
+                                conteo+=1
+                        if ejeY == "tq":
+                            conteo = 1
+                            for lista in solucion.__dict__["listatqs"]:
+                                gra = grafica(solucionMostrar+" parte "+str(conteo), ejeX, ejeY, solucion.__dict__["listaQ"], lista)
+                                self.ventanas.append(gra)
+                                gra.show()
+                                conteo+=1
+                        if ejeY == "Dq":
+                            conteo = 1
+                            for lista in solucion.__dict__["listadqm"]:
+                                gra = grafica(solucionMostrar+" parte "+str(conteo), ejeX, ejeY, solucion.__dict__["listaQ"], lista)
+                                self.ventanas.append(gra)
+                                gra.show()
+                                conteo+=1
+
+    def mostrarTablaSolucion(self):
+        nombreSolucion = self.comboBox_4.currentText()
+        for solucion in soluciones:
+            if nombreSolucion == solucion.__dict__["nombreSecuencia"]:
+                # self.tableWidget = QtWidgets.QTableWidget(len(solucion.__dict__["listaDqs"]), 3, parent = None)
+                self.tableWidget.setRowCount(len(solucion.__dict__["listaDqs"]))
+                self.tableWidget.setColumnCount(3)
+                self.tableWidget.setHorizontalHeaderLabels(["Delta(Hq)", "Delta(hq)", "Cantidad(Alus)"])
+                self.tableWidget.verticalHeader().setVisible(True)
+                for i in range(len(solucion.__dict__["listaDqs"])):
+                    for j in range(3):
+                        print(i, j, solucion.__dict__["listaDqs"][i])
+                        if j == 0:
+                            self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(solucion.__dict__["listaDqs"][i])))
+                        if j == 1:
+                            self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(solucion.__dict__["listadqs"][i])))
+                        # if j == 2:
+                        #     self.tableWidget.setItem(i, j, QTableWidgetItem(str(solucion.__dict__["listaAlus"][i])))
+
+
 
     def borrarSecuencias(self):
         lecturas = []
