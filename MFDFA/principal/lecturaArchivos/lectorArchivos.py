@@ -67,7 +67,7 @@ class lectorArchivos(object):
                 contador = 0
                 for char in data:
                     if contador <70:
-                        info+=char 
+                        info+=char
                         contador +=1
                     else:
                         info+='\n'
@@ -91,7 +91,7 @@ class lectorArchivos(object):
                 for archivo in archivos:
                     if self.nombre in archivo.name and archivo.is_file():
                         rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_")).replace(">", "_").replace("|", "").replace("(", "").replace(")", ""))
-                        #print(archivo.name)
+                        contarAlus("..files/"+archivo.name)
 
         ##Se crean los objeto segmento los cuales contendran secuencias del tamaño indicado para cada lectura
             arregloTemporal = divisionArreglo(self.secuenciaNumeros, (tamañoSegmentos*1000000))
@@ -101,7 +101,7 @@ class lectorArchivos(object):
                 segmentoT = segmento(self.nombre, arreglo)
                 self.segmentos.append(segmentoT)
 
-        
+
         print("tamaño segmentos dividir: ",len(self.segmentos))
 
     def calcularSolucionLectura(self, tipo, q):
@@ -117,13 +117,13 @@ class lectorArchivos(object):
         listaDqSegmentos =[]
         listadqSegmentos = []
         listadqmSegmentos = []
+        listaAlusSegmentos =[]
         #Se realiza el mfdfa en cada segmento
         solucion = None
         for segmento in self.segmentos:
             Hq = []
             fluct = []
             tq = []
-            listaAlusSegmentos =[]
             for e in q:
                 print("longitud de segmentos:", len(self.segmentos))
                 l, f = MFDFA(np.array(segmento.__dict__["contenidoSegmento"]),
@@ -160,29 +160,30 @@ class lectorArchivos(object):
             listadqmSegmentos.append(dqm.tolist())
             print("listaDqs: ", listaDqSegmentos)
             listaFLuctsSegmentos.append(fluct)
-            #se realiza el conteo de alus para cada segmento pasando el nombre de su secuencia
-            # self.segmentos.remove(segmento)
-        with scandir("../files/") as archivos:
-            print("entro a scandir")
-            for archivo in archivos:
-                if segmento.__dict__["nombreSecuencia"] in archivo.name and archivo.name.endswith('.fa'):
-                    print("conteo alus: {}-{}".format(archivo.name, self.nombre))
-                    rutaArchivoSegmento = path.abspath(archivo.name)
-                    print(rutaArchivoSegmento)
-                    contarAlus(rutaArchivoSegmento)
-                
-                #for para obtener la cantidad de alus luego de contarlas para cada segmento
-                # for i in range(len(self.segmentos)):
-                #     if self.nombre in archivo.name and archivo.name.endswith(str(i)+'.fa.tbl'):
-                #         print("entro a scandir tbl")
-                #         rutaArchivoTblSegmento = path.abspath(archivo.name)
-                #         listaAlusSegmentos.append(obtenerCantidadAlus(rutaArchivoTblSegmento))
-        
+        listaConteosTuplas = obtenerConteos(nombre)
+        for i in range(len(listaDqSegmentos)):
+            listaAlusSegmentos.append(listaConteosTuplas[i][1])
+
         solucion = Solucion(nombre, lag, q, listaHqSegmentos, listatqSegmentos, listahqSegmentos, listaFLuctsSegmentos, listaDqSegmentos, listadqSegmentos, listadqmSegmentos, listaAlusSegmentos)
 
         return solucion
 
+    def clave(tupla):
+        return(tupla[0])
 
+    def obtenerConteos(nombreSecuencia):
+        listaConteo = []
+        listaArchivos = [archivo for archivo in scandir("../files") if archivo.name.endswith(".fa.tbl") and nombreSecuencia in archivo.name]
+        for archivo in listaArchivos:
+            print(archivo.name)
+            numero = int(archivo.name[-9:-7])
+            cantidadalus = int(subprocess.check_output("awk 'NR==12' "+listaArchivos.name+" | awk '{print $2}'" , shell = True))
+            elemento = (numero, cantidadalus)
+            print(elemento)
+            listaConteo.append(elemento)
+        listaConteo = sorted(listaConteo, key = clave)
+        print(listaConteo)
+        return listaConteo
 
         # q = np.linspace(q[0], q[1], num = 10)
         # #lag = np.linspace(1000, 64000, num = 10).astype(int)

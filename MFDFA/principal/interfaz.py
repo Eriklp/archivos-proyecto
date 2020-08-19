@@ -172,7 +172,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(solucion.__dict__["listadqs"][i])))
                         # if j == 2:
                         #     self.tableWidget.setItem(i, j, QTableWidgetItem(str(solucion.__dict__["listaAlus"][i])))
-
+                self.tableWidget.resizeColumnsToContents()
 
 
     def borrarSecuencias(self):
