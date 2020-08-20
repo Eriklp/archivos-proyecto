@@ -18,6 +18,20 @@ def divisionArreglo(arr, tamaño):
     arrs.append(arr)
     return arrs
 
+def obtenerConteos(nombreSecuencia):
+        listaConteo = []
+        listaArchivos = [archivo for archivo in scandir("../files") if archivo.name.endswith(".fa.tbl") and nombreSecuencia in archivo.name]
+        for archivo in listaArchivos:
+            print(archivo.name)
+            numero = int(archivo.name[-9:-7])
+            cantidadalus = int(subprocess.check_output("awk 'NR==12' "+listaArchivos.name+" | awk '{print $2}'" , shell = True))
+            elemento = (numero, cantidadalus)
+            print(elemento)
+            listaConteo.append(elemento)
+        listaConteo = sorted(listaConteo)
+        print(listaConteo)
+        return listaConteo  
+
 class lectorArchivos(object):
     nombre = ""
     archivo = ""
@@ -90,8 +104,14 @@ class lectorArchivos(object):
             with scandir("../files/") as archivos:
                 for archivo in archivos:
                     if self.nombre in archivo.name and archivo.is_file():
-                        rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_")).replace(">", "_").replace("|", "").replace("(", "").replace(")", ""))
-                        contarAlus("..files/"+archivo.name)
+                        nuevoNombre = ("../files/"+archivo.name+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")
+                        print(nuevoNombre)
+                        # rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")))
+                        rename("../files/"+archivo.name, nuevoNombre)
+                        contarAlus(nuevoNombre)
+                # for archivos in archivos:
+                #     if archivo.name.endswith(".fa"):
+                #         ccontarAlus("..files/"+archivo.name)
 
         ##Se crean los objeto segmento los cuales contendran secuencias del tamaño indicado para cada lectura
             arregloTemporal = divisionArreglo(self.secuenciaNumeros, (tamañoSegmentos*1000000))
@@ -103,6 +123,9 @@ class lectorArchivos(object):
 
 
         print("tamaño segmentos dividir: ",len(self.segmentos))
+
+
+   
 
     def calcularSolucionLectura(self, tipo, q):
         #lag = np.linspace(1000, 64000, num = 10).astype(int)
@@ -168,22 +191,8 @@ class lectorArchivos(object):
 
         return solucion
 
-    def clave(tupla):
-        return(tupla[0])
-
-    def obtenerConteos(nombreSecuencia):
-        listaConteo = []
-        listaArchivos = [archivo for archivo in scandir("../files") if archivo.name.endswith(".fa.tbl") and nombreSecuencia in archivo.name]
-        for archivo in listaArchivos:
-            print(archivo.name)
-            numero = int(archivo.name[-9:-7])
-            cantidadalus = int(subprocess.check_output("awk 'NR==12' "+listaArchivos.name+" | awk '{print $2}'" , shell = True))
-            elemento = (numero, cantidadalus)
-            print(elemento)
-            listaConteo.append(elemento)
-        listaConteo = sorted(listaConteo, key = clave)
-        print(listaConteo)
-        return listaConteo
+   
+   
 
         # q = np.linspace(q[0], q[1], num = 10)
         # #lag = np.linspace(1000, 64000, num = 10).astype(int)
