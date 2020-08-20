@@ -173,6 +173,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         if j == 2:
                             self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(solucion.__dict__["listaAlus"][i])))
                 self.tableWidget.resizeColumnsToContents()
+                gra = grafica(nombreSolucion, "segmento", "delta(Hq) - delta(hq)", range(len(solucion.__dict__["listaDqs"])), [solucion.__dict__["listaDqs"], solucion.__dict__["listadqs"]])
+                self.ventanas.append(gra)
+                gra.show()
 
 
     def borrarSecuencias(self):

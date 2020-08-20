@@ -18,11 +18,24 @@ class grafica(QtWidgets.QMainWindow):
 
         self.ventana = pg.PlotWidget()
         self.setCentralWidget(self.ventana)
+        self.ventana.setBackground('w')
         self.ventana.setTitle(nombreSolucion, color="b", size="10pt")
-        # styles = {'color':'b', 'font-size': '10pt'}
-        self.ventana.setLabel("left", ejeY, color="b", size="10pt")
-        self.ventana.setLabel("bottom", ejeX, color="b", size="10pt")
+
+        styles = {'color':'b', 'font-size': '10pt'}
+        self.ventana.setLabel("left", ejeY, **styles)
+        self.ventana.setLabel("bottom", ejeX, **styles)
+
+        self.ventana.addLegend()
+
         if ejeY == "hq" or ejeY == "Dq":
-            self.ventana.plot(serieX[:-1], serieY[:-1])
+            self.plot(serieX[:-1], serieY[:-1], ejeY, "r")
         else:
-            self.ventana.plot(serieX, serieY)
+            self.plot(serieX, serieY, ejeY, "r")
+
+        if len(serieY)==2:
+            self.plot(seriex, serieY[0], "delta(Hq)", "r")
+            self.plot(seriex, serieY[1], "delta(hq)", "b")
+
+    def plot(self, x, y, plotname, color):
+        pen = pg.mkPen(color=color)
+        self.ventana.plot(x, y, name=plotname, pen=pen)

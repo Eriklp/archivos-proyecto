@@ -8,6 +8,8 @@ from mfdfa.mfdfa import MFDFA
 from entidades.segmento import segmento
 from mfdfa.gestionAlus import contarAlus
 from entidades.solucion import Solucion
+import threading
+import time
 
 def divisionArreglo(arr, tamaño):
     arrs = []
@@ -24,13 +26,19 @@ def obtenerConteos(nombreSecuencia):
         for archivo in listaArchivos:
             print(archivo.name)
             numero = int(archivo.name[-9:-7])
-            cantidadalus = int(subprocess.check_output("awk 'NR==12' "+listaArchivos.name+" | awk '{print $2}'" , shell = True))
+            cantidadalus = int(subprocess.check_output("awk 'NR==12' ../files/"+archivo.name+" | awk '{print $2}'" , shell = True))
             elemento = (numero, cantidadalus)
             print(elemento)
             listaConteo.append(elemento)
         listaConteo = sorted(listaConteo)
         print(listaConteo)
-        return listaConteo  
+        return listaConteo
+def realizarConteos(nombreSecuencia):
+    print("entro a conteo", nombreSecuencia)
+    # contarAlus("../files/"+nombreSecuencia+"*.fa")
+    p = subprocess.run("/usr/local/RepeatMasker/./RepeatMasker -alu ../files/"+nombreSecuencia+"*.fa", shell=True, stdout=subprocess.PIPE)
+    print("returnCode:", p.returncode)
+
 
 class lectorArchivos(object):
     nombre = ""
@@ -108,7 +116,7 @@ class lectorArchivos(object):
                         print(nuevoNombre)
                         # rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")))
                         rename("../files/"+archivo.name, nuevoNombre)
-                        contarAlus(nuevoNombre)
+                        # contarAlus(nuevoNombre)
                 # for archivos in archivos:
                 #     if archivo.name.endswith(".fa"):
                 #         ccontarAlus("..files/"+archivo.name)
@@ -125,11 +133,13 @@ class lectorArchivos(object):
         print("tamaño segmentos dividir: ",len(self.segmentos))
 
 
-   
+
 
     def calcularSolucionLectura(self, tipo, q):
         #lag = np.linspace(1000, 64000, num = 10).astype(int)
         nombre = self.nombre
+        hiloConteos = threading.Thread(target=realizarConteos, args=(nombre, ))
+        hiloConteos.start()
         lag = np.array([1000, 5000, 10000, 20000, 30000, 50000, 80000, 100000, 120000, 150000, 200000, 220000, 250000])
         q = np.linspace(q[0], q[1], num = 10)
         deltaQ = q[1] - q[0]
@@ -183,6 +193,10 @@ class lectorArchivos(object):
             listadqmSegmentos.append(dqm.tolist())
             print("listaDqs: ", listaDqSegmentos)
             listaFLuctsSegmentos.append(fluct)
+
+        while hiloConteos.isAlive():
+            print("aun no termina de contar Alus")
+            time.sleep(30)
         listaConteosTuplas = obtenerConteos(nombre)
         for i in range(len(listaDqSegmentos)):
             listaAlusSegmentos.append(listaConteosTuplas[i][1])
@@ -191,8 +205,8 @@ class lectorArchivos(object):
 
         return solucion
 
-   
-   
+
+
 
         # q = np.linspace(q[0], q[1], num = 10)
         # #lag = np.linspace(1000, 64000, num = 10).astype(int)
