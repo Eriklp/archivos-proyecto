@@ -26,15 +26,17 @@ class grafica(QtWidgets.QMainWindow):
         self.ventana.setLabel("bottom", ejeX, **styles)
 
         self.ventana.addLegend()
-
-        if ejeY == "hq" or ejeY == "Dq":
-            self.plot(serieX[:-1], serieY[:-1], ejeY, "r")
-        else:
-            self.plot(serieX, serieY, ejeY, "r")
-
         if len(serieY)==2:
-            self.plot(seriex, serieY[0], "delta(Hq)", "r")
-            self.plot(seriex, serieY[1], "delta(hq)", "b")
+            self.plot(serieX, serieY[0], "delta(Hq)", "r")
+            self.plot(serieX, serieY[1], "delta(hq)", "b")
+
+        else:
+            if ejeY == "hq" or ejeY == "Dq":
+                self.plot(serieX[:-1], serieY[:-1], ejeY, "r")
+            else:
+                self.plot(serieX, serieY, ejeY, "r")
+
+
 
     def plot(self, x, y, plotname, color):
         pen = pg.mkPen(color=color)
