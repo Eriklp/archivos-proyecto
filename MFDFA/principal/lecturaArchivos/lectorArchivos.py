@@ -55,7 +55,7 @@ class lectorArchivos(object):
             f = open(self.archivo)
             s1 = f.read()
             #print(s1.split("\n")[:1])
-            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "").replace(";", "")
+            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "").replace(";", "").replace("|", "")
             data = "".join(s1.split("\n")[1:]).upper()
             #print(len(data))
             listaNumero = []
