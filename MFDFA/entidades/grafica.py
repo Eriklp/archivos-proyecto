@@ -27,8 +27,8 @@ class grafica(QtWidgets.QMainWindow):
 
         self.ventana.addLegend()
         if len(serieY)==2:
-            self.plot(serieX, serieY[0], "delta(Hq)", "r")
-            self.plot(serieX, serieY[1], "delta(hq)", "b")
+            self.plot(serieX, serieY[0], "delta(Dq)", "r")
+            # self.plot(serieX, serieY[1], "delta(hq)", "b")
 
         else:
             if ejeY == "hq" or ejeY == "Dq":
