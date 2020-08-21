@@ -36,7 +36,7 @@ def obtenerConteos(nombreSecuencia):
 def realizarConteos(nombreSecuencia):
     print("entro a conteo", nombreSecuencia)
     # contarAlus("../files/"+nombreSecuencia+"*.fa")
-    p = subprocess.run("/usr/local/RepeatMasker/./RepeatMasker -alu ../files/"+nombreSecuencia+"*.fa", shell=True, stdout=subprocess.PIPE)
+    p = subprocess.run("RepeatMasker -alu ../files/"+nombreSecuencia+"*.fa", shell=True, stdout=subprocess.PIPE)
     print("returnCode:", p.returncode)
 
 
@@ -108,7 +108,7 @@ class lectorArchivos(object):
             pass
         else:
             print("tamaño: ", tamañoSegmentos)
-            subprocess.call(['split', '--bytes', str(tamañoSegmentos)+"M", '--numeric-suffixes', self.archivo, '../files/'+self.nombre])
+            subprocess.call(['split', '-b', str(tamañoSegmentos)+"MB", '--numeric-suffixes', self.archivo, '../files/'+self.nombre])
             with scandir("../files/") as archivos:
                 for archivo in archivos:
                     if self.nombre in archivo.name and archivo.is_file():
