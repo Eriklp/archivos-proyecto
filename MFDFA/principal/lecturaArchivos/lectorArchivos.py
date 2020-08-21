@@ -20,6 +20,14 @@ def divisionArreglo(arr, tamaño):
     arrs.append(arr)
     return arrs
 
+def diff(arreglo):
+    derivada = [len(arreglo)]
+    derivada[0] = 1
+    for i in range(1, len(arreglo)):
+        derivada.append(arreglo[i] - arreglo[i - 1])
+    print(derivada)
+    return np.array(derivada)
+
 def obtenerConteos(nombreSecuencia):
         listaConteo = []
         listaArchivos = [archivo for archivo in scandir("../files") if archivo.name.endswith(".fa.tbl") and nombreSecuencia in archivo.name]
@@ -105,7 +113,7 @@ class lectorArchivos(object):
     def dividirEnArchivos(self, tamañoSegmentos):
         self.segmentos = []
         if tamañoSegmentos == 0:
-            pass
+            self.segmentos.append(self.secuenciaNumeros)
         else:
             print("tamaño: ", tamañoSegmentos)
             subprocess.call(['split', '-b', str(tamañoSegmentos)+"MB", '--numeric-suffixes', self.archivo, '../files/'+self.nombre])
@@ -176,21 +184,21 @@ class lectorArchivos(object):
             # hq = np.concatenate((hq, diff))
             # TODO: implementar una aproximacion para el ultimo valor de hq ya que
             # se pierde durante la derivacion de tq
-            hq = np.append(hq, 0.5)
+            hq = np.append(hq, 0.6)
             print("listahq: ")
             print(hq.tolist())
             listaHqSegmentos.append(Hq)
             listatqSegmentos.append(tq)
             listahqSegmentos.append(hq.tolist())
-            # for i in q:
-
-            Dq = Hq[0] - Hq[-1]
-            dq = hq[0] - hq[-2]
-            # print("Hq-1:{}-Hq0:{}".format(Hq[-1], Hq[0]))
-            listaDqSegmentos.append(Dq)
-            listadqSegmentos.append(dq)
             dqm = (q*hq) - np.array(tq)
             listadqmSegmentos.append(dqm.tolist())
+
+            deltaDq = max(dqm.tolist()) - min(dqm.tolist())
+            deltahq = hq[0] - hq[-2]
+            # print("Hq-1:{}-Hq0:{}".format(Hq[-1], Hq[0]))
+            listaDqSegmentos.append(deltaDq)
+            listadqSegmentos.append(deltahq)
+
             print("listaDqs: ", listaDqSegmentos)
             listaFLuctsSegmentos.append(fluct)
 

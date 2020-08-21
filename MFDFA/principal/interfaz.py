@@ -161,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 # self.tableWidget = QtWidgets.QTableWidget(len(solucion.__dict__["listaDqs"]), 3, parent = None)
                 self.tableWidget.setRowCount(len(solucion.__dict__["listaDqs"]))
                 self.tableWidget.setColumnCount(3)
-                self.tableWidget.setHorizontalHeaderLabels(["Delta(Hq)", "Delta(hq)", "Cantidad(Alus)"])
+                self.tableWidget.setHorizontalHeaderLabels(["Delta(Dq)", "Delta(hq)", "Cantidad(Alus)"])
                 self.tableWidget.verticalHeader().setVisible(True)
                 for i in range(len(solucion.__dict__["listaDqs"])):
                     for j in range(3):
@@ -173,7 +173,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         if j == 2:
                             self.tableWidget.setItem(i, j, QtWidgets.QTableWidgetItem(str(solucion.__dict__["listaAlus"][i])))
                 self.tableWidget.resizeColumnsToContents()
-                gra = grafica(nombreSolucion, "segmento", "delta(Hq) - delta(hq)", range(len(solucion.__dict__["listaDqs"])), [solucion.__dict__["listaDqs"], solucion.__dict__["listadqs"]])
+                gra = grafica(nombreSolucion, "segmento", "delta(Dq) - delta(hq)", range(len(solucion.__dict__["listaDqs"])), [solucion.__dict__["listaDqs"], solucion.__dict__["listadqs"]])
                 self.ventanas.append(gra)
                 gra.show()
 
