@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-from os import rename, scandir, path
+from os import rename, scandir, path, listdir
 import subprocess
 sys.path.append("..")
 import matplotlib.pyplot as plt
@@ -63,7 +63,7 @@ class lectorArchivos(object):
             f = open(self.archivo)
             s1 = f.read()
             #print(s1.split("\n")[:1])
-            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "").replace(";", "").replace("|", "")
+            self.nombre = str(s1.split("\n")[:1][0]).replace(' ', '_').replace(">", "").replace(";", "").replace("|", "").replace("(", "").replace(")", "")
             data = "".join(s1.split("\n")[1:]).upper()
             #print(len(data))
             listaNumero = []
@@ -113,17 +113,18 @@ class lectorArchivos(object):
     def dividirEnArchivos(self, tamañoSegmentos):
         self.segmentos = []
         if tamañoSegmentos == 0:
+            # subprocess.call(["mv", self.archivo, "../files/"+self.nombre])
             self.segmentos.append(self.secuenciaNumeros)
         else:
             print("tamaño: ", tamañoSegmentos)
             subprocess.call(['split', '-b', str(tamañoSegmentos)+"MB", '--numeric-suffixes', self.archivo, '../files/'+self.nombre])
-            with scandir("../files/") as archivos:
-                for archivo in archivos:
-                    if self.nombre in archivo.name and archivo.is_file():
-                        nuevoNombre = ("../files/"+archivo.name+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")
-                        print(nuevoNombre)
-                        # rename("../files/"+archivo.name, (("../files/"+archivo.name+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")))
-                        rename("../files/"+archivo.name, nuevoNombre)
+            archivos =  listdir("../files/")
+            for archivo in archivos:
+                if self.nombre in archivo:
+                    # nuevoNombre = ("../files/"+archivo.name+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")
+                    # print(nuevoNombre)
+                    rename("../files/"+archivo, (("../files/"+archivo+".fa").replace(" ", "_").replace(">", "_").replace("|", "").replace("(", "").replace(")", "")))
+                    # rename("../files/"+archivo.name, nuevoNombre)
                         # contarAlus(nuevoNombre)
                 # for archivos in archivos:
                 #     if archivo.name.endswith(".fa"):

@@ -153,6 +153,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                 self.ventanas.append(gra)
                                 gra.show()
                                 conteo+=1
+                    if ejeX == "hq":
+                        if ejeY == "Dq":
+                            conteo = 1
+                            for i in range(solucion.__dict__["listadqm"]):
+                                gra = grafica(solucionMostrar+" parte "+str(conteo), ejeX, ejeY, solucion.__dict__["listadqm"][i], solucion.__dict__["listahqs"][i])
+                                self.ventanas.append(gra)
+                                gra.show()
+                                conteo+=1
 
     def mostrarTablaSolucion(self):
         nombreSolucion = self.comboBox_4.currentText()
